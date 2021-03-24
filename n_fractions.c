@@ -1,70 +1,76 @@
 //WAP to find the sum of n fractions.
 #include<stdio.h>
-typedef struct fraction
+#include<stdio.h>
+struct fractions
 {
-    int n; 
-    int d; 
-}fract;
-void input(int n, fract fractions[n])
-{
-    for(int i = 0;i < n;i++)
-    {
-        printf("Enter the numerator of fraction %d : \n",i+1);
-        scanf("%d",&fractions[i].n);
-        printf("Enter the denominator of fraction %d : \n",i+1);
-        scanf("%d",&fractions[i].d);
-    }
-}
-fract compute(int n, fract fractions[n])
-{
-    fract f;
-    f.d = 1;
-    for(int i = 0;i < n;i++)
-        f.d = f.d * fractions[i].d;
+	int num, den;
+};
 
-     
-    f.n = 0;
-    for(int i = 0; i < n;i++)
-    {
-        int temp = fractions[i].n;
-        for(int j = 0;j < n;j++)
-        {
-            if(i!=j)
-            {
-                temp = temp * fractions[j].d;
-                
-            }
-       } 
-       f.n = f.n + temp; 
-    }   
-   
-    int min = (f.n < f.d)? f.n : f.d;
-    while(min >= 1)
-    {
-         if(f.n % min == 0 && f.d % min == 0)
-         {
-             f.n = f.n/min;
-             f.d = f.d/min;
-             break;
-         }
-         --min;
-     }
-    return f;   
-}
-void print(int n,fract fractions[n],fract f)
+int gcd(int a, int b)
 {
-    printf("Sum of ");
-    for(int i = 0;i < n-1; i++)
-        printf("%d/%d + ",fractions[i].n,fractions[i].d);
-    printf("%d/%d = %d/%d",fractions[n-1].n,fractions[n-1].d,f.n,f.d);    
+	int gcd=1;
+	for(int i=2; i <= a && i <= b; ++i)
+    {
+        if(a % i == 0 && b % i == 0)
+            gcd = i;
+    } 
+    return gcd;
 }
+
+struct fractions* input(struct fractions a[], int n)
+{
+    for(int i = 0; i<n; i++)
+    {
+        printf("Enter fraction %d: ", i+1);
+        scanf("%d%d", &a[i].num, &a[i].den);
+    }
+    
+    return a;
+}
+
+void frac_addition(int n, struct fractions a[])
+{
+    struct fractions b;
+    int res_num = 0;
+    int res_den = a[0].den;
+    for (int i = 1; i < n; i++) 
+    {
+        res_den = (((a[i].den * res_den)) / (gcd(a[i].den, res_den)));
+    }
+    
+    for (int i = 0; i < n; i++) 
+    {
+        res_num = res_num + (a[i].num) * (res_den / a[i].den);
+    }
+    
+    int GCD = gcd(res_num, res_den);
+    
+    b.num = res_num / GCD;
+    b.den = res_den / GCD;
+    
+    output(a, b, n);
+}
+
+void output(struct fractions a[], struct fractions b, int n)
+{
+    printf("The sum of ");
+    for(int i = 0; i<n ; i++)
+    {
+        printf("%d/%d + ", a[i].num, a[i].den);
+    }
+    printf(" is %d/%d \n", b.num, b.den);
+}
+
 int main()
 {
+    struct fractions a[100];
     int n;
-    printf("Enter the number of fractions:\n");
-    scanf("%d",&n);
-    fract fractions[n];
-    input(n,fractions);
-    fract f = compute(n,fractions);
-    print(n,fractions,f);
+    
+    printf("Enter n: ");
+    scanf("%d", &n);
+    input(a, n);
+    
+    frac_addition(n, a);
+
+    return 0;
 }
